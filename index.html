@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Portfolio - Elysé Shimel</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+    }
+
+    /* MENU */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: black;
+      padding: 15px;
+      text-align: center;
+      z-index: 1000;
+    }
+
+    nav a {
+      color: white;
+      margin: 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #00bcd4;
+    }
+
+    /* ACCUEIL */
+    #home {
+      height: 100vh;
+      background: linear-gradient(to right, #000000, #1a1a1a);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding-top: 200px;
+    }
+
+    .home-content {
+      animation: fadeIn 2s ease-in;
+    }
+
+    /* IMAGE */
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 3px solid #00bcd4;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .slogan {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+
+    /* BOUTON */
+    .btn {
+      background: #00bcd4;
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: 0.3s;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #0097a7;
+    }
+
+    /* ICONES */
+    .socials {
+      margin-top: 20px;
+    }
+
+    .socials a {
+      margin: 10px;
+      color: white;
+      font-size: 20px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .socials a:hover {
+      color: #00bcd4;
+    }
+
+    /* ANIMATION */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    ol{
+      background: #280202;
+  padding: 80px 20px;
+  text-align: center;
+  animation: fadeIn 2s ease-in;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: 0.3s;
+  text-align: left;
+    }
+
+  </style>
+
+  <!-- Icônes (Font Awesome) -->
+  <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+  <!-- MENU -->
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="about.html">À propos</a>
+    <a href="#projects">Projets</a>
+  <a href="formation.html">Formations</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <!-- ACCUEIL -->
+  <section id="home">
+    <div class="home-content">
+
+      <!-- IMAGE -->
+      <img src="Screenshot_20250627-084833.jpg" alt="photo" class="profile-img">
+
+      <h1>Elysé shimahizwa</h1>
+      <p class="slogan"><strong>Créer. Apprendre. Comprendre. Évoluer.</strong></p>
+
+      <h4>Développeur Web & Créateur Digital</h4>
+      <h6 style="height: 20px; ">Je conçois des applications et sites modernes pour transformer des idées en solutions concrètes pour les entreprises et les particuliers.
+
+</h6>
+
+      <a href="#formations" class="btn">Voir mes formations</a>
+     <a href="#formations" class="btn">Voir mes projects</a>
+
+     <h1>nos services</h1>
+     <ol>
+      <li><strong>🌐 Création de sites web: </strong>Création de sites modernes, rapides et adaptés à vos besoins professionnels.</li>
+      <li><strong>🌍 Installation réseaux:</strong>Configuration de réseaux LAN, WiFi, routeurs et dépannage réseau.</li>
+      <li><strong>💻 Installation systèmes:</strong>Installation de Windows, Linux et configuration complète des ordinateurs.</li>
+      <li><strong>🛠️ Réparation informatique:</strong>Maintenance, dépannage et optimisation des ordinateurs.</li>
+     </ol>
+
+
+      <!-- RESEAUX SOCIAUX -->
+      <div class="socials">
+        <a href="#"><i class="fab fa-facebook">facebool</i></a>
+        <a href="#"><i class="fab fa-whatsapp">whatsap</i></a>
+        <a href="#"><i class="fab fa-github">github</i></a>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>

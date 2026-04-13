@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact - Shimel</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+
+    form {
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      background: #00bcd4;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0097a7;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <h1>📩 Contactez-moi</h1>
+
+  <form id="contactForm">
+    <input type="text" id="nom" placeholder="Votre nom" required>
+    <input type="email" id="email" placeholder="Votre email" required>
+    <textarea id="message" placeholder="Votre message"></textarea>
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    // 🔥 REMPLACE PAR TON CODE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
+      authDomain: "portefolioshimel.firebaseapp.com",
+      projectId: "portefolioshimel"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ENVOI FORMULAIRE
+    document.getElementById("contactForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nom = document.getElementById("nom").value;
+      const email = document.getElementById("email").value;
+      const message = document.getElementById("message").value;
+
+      await addDoc(collection(db, "messages"), {
+        nom: nom,
+        email: email,
+        message: message,
+        date: new Date()
+      });
+
+      alert("Message envoyé !");
+    });
+  </script>
+
+</body>
+</html>
