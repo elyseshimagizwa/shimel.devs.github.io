@@ -38,13 +38,79 @@
     button:hover {
       background: #0097a7;
     }
+
+    /* NAVBAR */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #000;
+  padding: 15px 0;
+  text-align: center;
+  z-index: 1000;
+}
+
+nav a {
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+nav a:hover {
+  color: #00bcd4;
+}
+
+/* Évite que le contenu soit caché */
+body {
+  padding-top: 70px;
+}
+/* NAVBAR */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #000;
+  padding: 15px 0;
+  text-align: center;
+  z-index: 1000;
+}
+
+nav a {
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+nav a:hover {
+  color: #00bcd4;
+}
+
+/* Évite que le contenu soit caché */
+body {
+  padding-top: 70px;
+}
   </style>
 
 </head>
 
 <body>
 
-  <h1>📩 Contactez-moi</h1>
+  <!-- NAVIGATION -->
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="index.html#about">À propos</a>
+  <a href="index.html#formations">Formations</a>
+  <a href="index.html#services">Services</a>
+  <a href="project.html">Projets</a>
+  <a href="contact.html">Contact</a>
+</nav>
+
+
+  <h1>📩 Contactez-nous</h1>
 
   <form id="contactForm">
     <input type="text" id="nom" placeholder="Votre nom" required>
@@ -58,7 +124,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // 🔥 REMPLACE PAR TON CODE FIREBASE
+    // CODE FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
       authDomain: "portefolioshimel.firebaseapp.com",
