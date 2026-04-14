@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  color: white;
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 20px;
+}
+
+/* MENU */
+.menu {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px;
+}
+
+button {
+  background: linear-gradient(45deg, #00bcd4, #0097a7);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* SECTIONS */
+.section {
+  display: none;
+  padding: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  margin: 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+/* INPUTS */
+input, textarea {
+  width: 300px;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>👨‍💻 Admin Dashboard</h1>
+</header>
+
+<!-- MENU -->
+<div class="menu">
+<button onclick="show('messages')">📩 Messages</button>
+<button onclick="show('inscriptions')">🎓 Inscriptions</button>
+<button onclick="show('projects')">💼 Projets</button>
+</div>
+
+<!-- ================= MESSAGES ================= -->
+<div id="messages" class="section"></div>
+
+<!-- ================= INSCRIPTIONS ================= -->
+<div id="inscriptions" class="section"></div>
+
+<!-- ================= PROJETS ================= -->
+<div id="projects" class="section">
+
+<h2>➕ Ajouter Projet</h2>
+
+<input id="titre" placeholder="Titre">
+<input type="file" id="imageFile">
+<input id="lien" placeholder="Lien projet">
+<textarea id="description" placeholder="Description"></textarea>
+
+<button onclick="ajouterProjet()">Ajouter</button>
+<button onclick="modifierProjet()">Modifier</button>
+
+<div id="projectList"></div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz",
+  authDomain: "portefolioshimel.firebaseapp.com",
+  projectId: "portefolioshimel",
+  storageBucket: "portefolioshimel.appspot.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+/* PROTECTION ADMIN */
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Accès refusé !");
+    window.location.href = "login.html";
+  }
+});
+
+/* AFFICHER SECTIONS */
+window.show = function(id) {
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
+
+  if (id === "messages") loadMessages();
+  if (id === "inscriptions") loadInscriptions();
+  if (id === "projects") loadProjects();
+};
+
+/* ================= MESSAGES ================= */
+async function loadMessages() {
+  const div = document.getElementById("messages");
+  div.innerHTML = "<h2>📩 Messages</h2>";
+
+  const snap = await getDocs(collection(db, "messages"));
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    div.innerHTML += `
+      <div class="card">
+        <p><b>${data.nom}</b>: ${data.message}</p>
+        <button onclick="deleteMessage('${d.id}')">🗑️ Supprimer</button>
+      </div>
+    `;
+  });
+}
+
+window.deleteMessage = async function(id) {
+  await deleteDoc(doc(db, "messages", id));
+  loadMessages();
+};
+
+/* ================= INSCRIPTIONS ================= */
+async function loadInscriptions() {
+  const div = document.getElementById("inscriptions");
+  div.innerHTML = "<h2>🎓 Inscriptions</h2>";
+
+  const snap = await getDocs(collection(db, "inscriptions"));
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    div.innerHTML += `
+      <div class="card">
+        <p>${data.nom} - ${data.email} - ${data.formation}</p>
+        <button onclick="deleteInscription('${d.id}')">🗑️ Supprimer</button>
+      </div>
+    `;
+  });
+}
+
+window.deleteInscription = async function(id) {
+  await deleteDoc(doc(db, "inscriptions", id));
+  loadInscriptions();
+};
+
+/* ================= PROJETS ================= */
+let currentId = null;
+
+async function loadProjects() {
+  const div = document.getElementById("projectList");
+  div.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "project"));
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    div.innerHTML += `
+      <div class="card">
+        <h3>${data.titre}</h3>
+        <p>${data.description}</p>
+        <button onclick="fill('${d.id}', '${data.titre}', '${data.liens}', \`${data.description}\`)">✏️ Modifier</button>
+        <button onclick="deleteProject('${d.id}')">🗑️ Supprimer</button>
+      </div>
+    `;
+  });
+}
+
+/* UPLOAD IMAGE */
+async function uploadImage(file) {
+  const storageRef = ref(storage, "projects/" + file.name);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
+}
+
+/* AJOUT */
+window.ajouterProjet = async function() {
+  const file = document.getElementById("imageFile").files[0];
+  const imageURL = await uploadImage(file);
+
+  await addDoc(collection(db, "project"), {
+    titre: titre.value,
+    image: imageURL,
+    liens: lien.value,
+    description: description.value
+  });
+
+  loadProjects();
+};
+
+/* SUPPRIMER */
+window.deleteProject = async function(id) {
+  await deleteDoc(doc(db, "project", id));
+  loadProjects();
+};
+
+/* REMPLIR FORM */
+window.fill = function(id, t, l, d) {
+  currentId = id;
+  titre.value = t;
+  lien.value = l;
+  description.value = d;
+};
+
+/* MODIFIER */
+window.modifierProjet = async function() {
+  await updateDoc(doc(db, "project", currentId), {
+    titre: titre.value,
+    liens: lien.value,
+    description: description.value
+  });
+
+  loadProjects();
+};
+
+</script>
+
+</body>
+</html>
