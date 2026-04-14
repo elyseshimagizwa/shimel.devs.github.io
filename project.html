@@ -2,11 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-<<<<<<< HEAD
-  <title>elyse shimagizwa , createur digital</title>
-=======
   <title>Mes Projets - Shimel</title>
->>>>>>> 8234fd5f1d4e5e89dc7bd62226217fe4f17b8adb
 
   <style>
     body {
@@ -14,13 +10,38 @@
       background: #111;
       color: white;
       text-align: center;
-      padding: 20px;
+      margin: 0;
+      padding-top: 80px;
     }
 
     h1 {
       margin-bottom: 30px;
     }
 
+    /* NAVBAR */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #000;
+      padding: 15px 0;
+      text-align: center;
+      z-index: 1000;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #00bcd4;
+    }
+
+    /* PROJETS */
     .projects-container {
       display: flex;
       flex-wrap: wrap;
@@ -29,15 +50,18 @@
 
     .project-card {
       background: #1e1e1e;
-      width: 250px;
+      width: 260px;
       margin: 15px;
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 12px;
       transition: 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
 
     .project-card img {
       width: 100%;
+      height: 150px;
+      object-fit: cover;
       border-radius: 10px;
     }
 
@@ -54,98 +78,81 @@
     .project-card a {
       display: inline-block;
       margin-top: 10px;
-      color: #00bcd4;
+      padding: 8px 12px;
+      background: #00bcd4;
+      color: black;
+      border-radius: 8px;
       text-decoration: none;
+      font-weight: bold;
     }
 
     .project-card:hover {
       transform: translateY(-10px);
     }
-    /* NAVBAR */
-nav {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #000;
-  padding: 15px 0;
-  text-align: center;
-  z-index: 1000;
-}
-
-nav a {
-  color: white;
-  margin: 0 15px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-nav a:hover {
-  color: #00bcd4;
-}
-
-/* Évite que le contenu soit caché */
-body {
-  padding-top: 70px;
-}
   </style>
 </head>
 
 <body>
-    <!-- NAVIGATION -->
+
+<!-- NAVIGATION -->
 <nav>
   <a href="index.html">Accueil</a>
   <a href="about.html">À propos</a>
   <a href="formation.html">Formations</a>
   <a href="project.html">Projets</a>
   <a href="contact.html">Contact</a>
-<<<<<<< HEAD
-    <a href="login.html">login</a>
-
-=======
->>>>>>> 8234fd5f1d4e5e89dc7bd62226217fe4f17b8adb
+  <a href="login.html">Login</a>
 </nav>
 
-  <h1>💼 Mes Projets</h1>
+<h1>💼 Mes Projets</h1>
 
-  <div class="projects-container" id="projects"></div>
+<div class="projects-container" id="projects"></div>
 
-  <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+<!-- FIREBASE -->
+<script type="module">
 
-    // 🔥 Mets ton vrai config ici
-    const firebaseConfig = {
-      apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
-      authDomain: "portefolioshimel.firebaseapp.com",
-      projectId: "portefolioshimel"
-    };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+// 🔥 CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
+  authDomain: "portefolioshimel.firebaseapp.com",
+  projectId: "portefolioshimel",
+  storageBucket: "portefolioshimel.appspot.com"
+};
 
-    const container = document.getElementById("projects");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    async function afficherProjets() {
-      const querySnapshot = await getDocs(collection(db, "project"));
+const container = document.getElementById("projects");
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+// 📥 Charger les projets
+async function afficherProjets() {
+  container.innerHTML = "<p>Chargement...</p>";
 
-        container.innerHTML += `
-          <div class="project-card">
-            <img src="${data.image}" alt="">
-            <h3>${data.titre}</h3>
-            <p>${data.description}</p>
-            <a href="${data.liens}" target="_blank">Voir projet</a>
-          </div>
-        `;
-      });
-    }
+  const querySnapshot = await getDocs(collection(db, "project"));
 
-    afficherProjets();
-  </script>
+  container.innerHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+
+    container.innerHTML += `
+      <div class="project-card">
+        <img src="${data.image}" alt="image projet">
+        <h3>${data.titre}</h3>
+        <p>${data.description}</p>
+        <a href="${data.liens}" target="_blank">Voir projet</a>
+      </div>
+    `;
+  });
+}
+
+// lancer
+afficherProjets();
+
+</script>
 
 </body>
 </html>
