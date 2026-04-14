@@ -1,44 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>elyse shimagizwa , createur digital</title>
+  <meta charset="UTF-8">
+  <title>Admin Login - Elyse</title>
+
   <style>
     body {
-      background: #111;
-      color: white;
-      text-align: center;
+      margin: 0;
       font-family: Arial;
-      padding-top: 100px;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 15px;
+      width: 300px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      margin-bottom: 20px;
     }
 
     input {
-      padding: 10px;
-      margin: 10px;
-      width: 250px;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      outline: none;
     }
 
     button {
-      padding: 10px;
-      background: #00bcd4;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(45deg, #00bcd4, #0097a7);
       border: none;
+      border-radius: 10px;
       color: white;
       cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .success {
+      color: #4caf50;
+    }
+
+    .error {
+      color: #f44336;
     }
   </style>
 </head>
 
 <body>
 
-<h2>🔐 Admin Login</h2>
+<div class="login-box">
+  <h2>🔐 Admin Login</h2>
 
-<input type="email" id="email" placeholder="Email admin"><br>
-<input type="password" id="password" placeholder="Mot de passe"><br>
+  <input type="email" id="email" placeholder="Email admin" required>
+  <input type="password" id="password" placeholder="Mot de passe" required>
 
-<button onclick="login()">Se connecter</button>
+  <button onclick="login()">Se connecter</button>
 
+  <div id="message"></div>
+</div>
+
+<!-- FIREBASE -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword,
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
@@ -49,18 +101,40 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+const messageDiv = document.getElementById("message");
+
+// 🔥 LOGIN
 window.login = async function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
+  messageDiv.innerHTML = "Connexion en cours...";
+  messageDiv.className = "";
+
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    alert("Connexion réussie !");
-    window.location.href = "admin.html";
+
+    messageDiv.innerHTML = "✅ Connexion réussie...";
+    messageDiv.className = "success";
+
+    // 🔥 attendre que Firebase charge bien la session
+    setTimeout(() => {
+      window.location.href = "admin.html";
+    }, 1200);
+
   } catch (error) {
-    alert("Erreur : " + error.message);
+    messageDiv.innerHTML = "❌ " + error.message;
+    messageDiv.className = "error";
   }
 };
+
+// 🔐 Déjà connecté ? aller direct admin
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.location.href = "admin.html";
+  }
+});
+
 </script>
 
 </body>

@@ -10,12 +10,21 @@
       background: #111;
       color: white;
       text-align: center;
-      padding: 50px;
+      margin: 0;
+      padding-top: 80px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
     }
 
     form {
       max-width: 400px;
       margin: auto;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
     input, textarea {
@@ -24,6 +33,12 @@
       margin: 10px 0;
       border: none;
       border-radius: 5px;
+      outline: none;
+    }
+
+    textarea {
+      resize: none;
+      height: 100px;
     }
 
     button {
@@ -33,6 +48,9 @@
       border: none;
       width: 100%;
       cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: 0.3s;
     }
 
     button:hover {
@@ -40,66 +58,33 @@
     }
 
     /* NAVBAR */
-nav {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #000;
-  padding: 15px 0;
-  text-align: center;
-  z-index: 1000;
-}
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #000;
+      padding: 15px 0;
+      text-align: center;
+      z-index: 1000;
+    }
 
-nav a {
-  color: white;
-  margin: 0 15px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
-}
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
 
-nav a:hover {
-  color: #00bcd4;
-}
-
-/* Évite que le contenu soit caché */
-body {
-  padding-top: 70px;
-}
-/* NAVBAR */
-nav {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #000;
-  padding: 15px 0;
-  text-align: center;
-  z-index: 1000;
-}
-
-nav a {
-  color: white;
-  margin: 0 15px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-nav a:hover {
-  color: #00bcd4;
-}
-
-/* Évite que le contenu soit caché */
-body {
-  padding-top: 70px;
-}
+    nav a:hover {
+      color: #00bcd4;
+    }
   </style>
-
 </head>
 
 <body>
 
-  <!-- NAVIGATION -->
+<!-- NAVIGATION -->
 <nav>
   <a href="index.html">Accueil</a>
   <a href="index.html#about">À propos</a>
@@ -107,56 +92,60 @@ body {
   <a href="index.html#services">Services</a>
   <a href="project.html">Projets</a>
   <a href="contact.html">Contact</a>
-<<<<<<< HEAD
-    <a href="login.html">login</a>
-
-=======
->>>>>>> 8234fd5f1d4e5e89dc7bd62226217fe4f17b8adb
+  <a href="login.html">Login</a>
 </nav>
 
+<h1>📩 Contactez-nous</h1>
 
-  <h1>📩 Contactez-nous</h1>
+<form id="contactForm">
+  <input type="text" id="nom" placeholder="Votre nom" required>
+  <input type="email" id="email" placeholder="Votre email" required>
+  <textarea id="message" placeholder="Votre message" required></textarea>
+  <button type="submit">Envoyer</button>
+</form>
 
-  <form id="contactForm">
-    <input type="text" id="nom" placeholder="Votre nom" required>
-    <input type="email" id="email" placeholder="Votre email" required>
-    <textarea id="message" placeholder="Votre message"></textarea>
-    <button type="submit">Envoyer</button>
-  </form>
+<!-- FIREBASE -->
+<script type="module">
 
-  <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // CODE FIREBASE
-    const firebaseConfig = {
-      apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
-      authDomain: "portefolioshimel.firebaseapp.com",
-      projectId: "portefolioshimel"
-    };
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
+  authDomain: "portefolioshimel.firebaseapp.com",
+  projectId: "portefolioshimel",
+  storageBucket: "portefolioshimel.appspot.com"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    // ENVOI FORMULAIRE
-    document.getElementById("contactForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+// ENVOI FORMULAIRE
+document.getElementById("contactForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const nom = document.getElementById("nom").value;
-      const email = document.getElementById("email").value;
-      const message = document.getElementById("message").value;
+  const nom = document.getElementById("nom").value;
+  const email = document.getElementById("email").value;
+  const message = document.getElementById("message").value;
 
-      await addDoc(collection(db, "messages"), {
-        nom: nom,
-        email: email,
-        message: message,
-        date: new Date()
-      });
-
-      alert("Message envoyé !");
+  try {
+    await addDoc(collection(db, "messages"), {
+      nom: nom,
+      email: email,
+      message: message,
+      date: new Date()
     });
-  </script>
+
+    alert("✅ Message envoyé !");
+    document.getElementById("contactForm").reset();
+
+  } catch (error) {
+    alert("❌ Erreur : " + error.message);
+  }
+});
+
+</script>
 
 </body>
 </html>

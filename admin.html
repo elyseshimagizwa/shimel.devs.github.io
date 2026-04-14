@@ -12,6 +12,28 @@ body {
   color: white;
 }
 
+/* LOADER */
+#loader {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.spinner {
+  border: 5px solid #333;
+  border-top: 5px solid #00bcd4;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg);} }
+
 /* HEADER */
 header {
   text-align: center;
@@ -33,25 +55,16 @@ button {
   border-radius: 20px;
   color: white;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: scale(1.05);
 }
 
 /* SECTIONS */
-.section {
-  display: none;
-  padding: 20px;
-}
+.section { display: none; padding: 20px; }
 
 .card {
   background: rgba(255,255,255,0.05);
   padding: 15px;
   margin: 10px;
   border-radius: 12px;
-  backdrop-filter: blur(10px);
 }
 
 /* INPUTS */
@@ -62,35 +75,59 @@ input, textarea {
   border-radius: 10px;
   border: none;
 }
+
+/* STATS */
+.stats {
+  text-align:center;
+  margin:20px;
+  font-size:18px;
+}
+
+/* IMAGE PREVIEW */
+#preview {
+  width: 200px;
+  margin-top: 10px;
+  border-radius: 10px;
+  display: none;
+}
 </style>
 </head>
 
 <body>
 
+<div id="loader"><div class="spinner"></div></div>
+
 <header>
 <h1>👨‍💻 Admin Dashboard</h1>
+<button onclick="logout()">🚪 Logout</button>
 </header>
 
-<!-- MENU -->
+<div class="stats">
+📊 Messages: <span id="msgCount">0</span> |
+🎓 Inscriptions: <span id="inscCount">0</span> |
+💼 Projets: <span id="projCount">0</span>
+</div>
+
 <div class="menu">
 <button onclick="show('messages')">📩 Messages</button>
 <button onclick="show('inscriptions')">🎓 Inscriptions</button>
 <button onclick="show('projects')">💼 Projets</button>
 </div>
 
-<!-- ================= MESSAGES ================= -->
-<div id="messages" class="section"></div>
+<!-- SEARCH -->
+<div style="text-align:center;">
+<input id="search" placeholder="🔍 Rechercher..." onkeyup="searchData()">
+</div>
 
-<!-- ================= INSCRIPTIONS ================= -->
+<div id="messages" class="section"></div>
 <div id="inscriptions" class="section"></div>
 
-<!-- ================= PROJETS ================= -->
 <div id="projects" class="section">
-
 <h2>➕ Ajouter Projet</h2>
 
 <input id="titre" placeholder="Titre">
 <input type="file" id="imageFile">
+<img id="preview">
 <input id="lien" placeholder="Lien projet">
 <textarea id="description" placeholder="Description"></textarea>
 
@@ -98,38 +135,26 @@ input, textarea {
 <button onclick="modifierProjet()">Modifier</button>
 
 <div id="projectList"></div>
-
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc
+  getFirestore, collection, getDocs, addDoc,
+  deleteDoc, doc, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 import {
-  getAuth,
-  onAuthStateChanged
+  getAuth, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
 import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
+  getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-storage.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz",
+  apiKey: "AIzaSyDld_cVbQzQHjDdxHHkU9SjkvHSK8aEz_g",
   authDomain: "portefolioshimel.firebaseapp.com",
   projectId: "portefolioshimel",
   storageBucket: "portefolioshimel.appspot.com"
@@ -140,15 +165,22 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-/* PROTECTION ADMIN */
+/* AUTH */
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    alert("Accès refusé !");
-    window.location.href = "login.html";
+  if (!user) window.location.href = "login.html";
+  else {
+    document.getElementById("loader").style.display = "none";
+    loadStats();
   }
 });
 
-/* AFFICHER SECTIONS */
+/* LOGOUT */
+window.logout = async function() {
+  await signOut(auth);
+  window.location.href = "login.html";
+};
+
+/* SHOW */
 window.show = function(id) {
   document.querySelectorAll(".section").forEach(s => s.style.display = "none");
   document.getElementById(id).style.display = "block";
@@ -158,119 +190,150 @@ window.show = function(id) {
   if (id === "projects") loadProjects();
 };
 
-/* ================= MESSAGES ================= */
+/* STATS */
+async function loadStats() {
+  document.getElementById("msgCount").innerText =
+    (await getDocs(collection(db,"messages"))).size;
+
+  document.getElementById("inscCount").innerText =
+    (await getDocs(collection(db,"inscriptions"))).size;
+
+  document.getElementById("projCount").innerText =
+    (await getDocs(collection(db,"project"))).size;
+}
+
+/* SEARCH */
+window.searchData = function() {
+  let input = document.getElementById("search").value.toLowerCase();
+  document.querySelectorAll(".card").forEach(card => {
+    card.style.display = card.innerText.toLowerCase().includes(input)
+      ? "block" : "none";
+  });
+};
+
+/* PREVIEW IMAGE */
+document.getElementById("imageFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = document.getElementById("preview");
+    img.src = reader.result;
+    img.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+/* MESSAGES */
 async function loadMessages() {
   const div = document.getElementById("messages");
   div.innerHTML = "<h2>📩 Messages</h2>";
 
-  const snap = await getDocs(collection(db, "messages"));
-
+  const snap = await getDocs(collection(db,"messages"));
   snap.forEach(d => {
     const data = d.data();
-
     div.innerHTML += `
-      <div class="card">
-        <p><b>${data.nom}</b>: ${data.message}</p>
-        <button onclick="deleteMessage('${d.id}')">🗑️ Supprimer</button>
-      </div>
-    `;
+    <div class="card">
+      <p><b>${data.nom}</b>: ${data.message}</p>
+      <button onclick="deleteMessage('${d.id}')">🗑️</button>
+    </div>`;
   });
 }
 
-window.deleteMessage = async function(id) {
-  await deleteDoc(doc(db, "messages", id));
+window.deleteMessage = async id => {
+  await deleteDoc(doc(db,"messages",id));
   loadMessages();
+  loadStats();
 };
 
-/* ================= INSCRIPTIONS ================= */
+/* INSCRIPTIONS */
 async function loadInscriptions() {
   const div = document.getElementById("inscriptions");
   div.innerHTML = "<h2>🎓 Inscriptions</h2>";
 
-  const snap = await getDocs(collection(db, "inscriptions"));
-
+  const snap = await getDocs(collection(db,"inscriptions"));
   snap.forEach(d => {
     const data = d.data();
-
     div.innerHTML += `
-      <div class="card">
-        <p>${data.nom} - ${data.email} - ${data.formation}</p>
-        <button onclick="deleteInscription('${d.id}')">🗑️ Supprimer</button>
-      </div>
-    `;
+    <div class="card">
+      <p>${data.nom} - ${data.email}</p>
+      <button onclick="deleteInscription('${d.id}')">🗑️</button>
+    </div>`;
   });
 }
 
-window.deleteInscription = async function(id) {
-  await deleteDoc(doc(db, "inscriptions", id));
+window.deleteInscription = async id => {
+  await deleteDoc(doc(db,"inscriptions",id));
   loadInscriptions();
+  loadStats();
 };
 
-/* ================= PROJETS ================= */
+/* PROJECTS */
 let currentId = null;
 
 async function loadProjects() {
   const div = document.getElementById("projectList");
   div.innerHTML = "";
 
-  const snap = await getDocs(collection(db, "project"));
-
+  const snap = await getDocs(collection(db,"project"));
   snap.forEach(d => {
     const data = d.data();
-
     div.innerHTML += `
-      <div class="card">
-        <h3>${data.titre}</h3>
-        <p>${data.description}</p>
-        <button onclick="fill('${d.id}', '${data.titre}', '${data.liens}', \`${data.description}\`)">✏️ Modifier</button>
-        <button onclick="deleteProject('${d.id}')">🗑️ Supprimer</button>
-      </div>
-    `;
+    <div class="card">
+      <h3>${data.titre}</h3>
+      <p>${data.description}</p>
+      <button onclick="fill('${d.id}','${data.titre}','${data.liens}',\`${data.description}\`)">✏️</button>
+      <button onclick="deleteProject('${d.id}')">🗑️</button>
+    </div>`;
   });
 }
 
-/* UPLOAD IMAGE */
+/* UPLOAD */
 async function uploadImage(file) {
-  const storageRef = ref(storage, "projects/" + file.name);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
+  if (!file) return "";
+  const refStorage = ref(storage,"projects/"+Date.now()+file.name);
+  await uploadBytes(refStorage,file);
+  return await getDownloadURL(refStorage);
 }
 
-/* AJOUT */
+/* ADD */
 window.ajouterProjet = async function() {
-  const file = document.getElementById("imageFile").files[0];
-  const imageURL = await uploadImage(file);
+  const file = imageFile.files[0];
+  const url = await uploadImage(file);
 
-  await addDoc(collection(db, "project"), {
-    titre: titre.value,
-    image: imageURL,
-    liens: lien.value,
-    description: description.value
+  await addDoc(collection(db,"project"),{
+    titre:titre.value,
+    image:url,
+    liens:lien.value,
+    description:description.value
   });
 
   loadProjects();
+  loadStats();
 };
 
-/* SUPPRIMER */
-window.deleteProject = async function(id) {
-  await deleteDoc(doc(db, "project", id));
+/* DELETE */
+window.deleteProject = async id => {
+  await deleteDoc(doc(db,"project",id));
   loadProjects();
+  loadStats();
 };
 
-/* REMPLIR FORM */
-window.fill = function(id, t, l, d) {
+/* FILL */
+window.fill = function(id,t,l,d) {
   currentId = id;
   titre.value = t;
   lien.value = l;
   description.value = d;
 };
 
-/* MODIFIER */
+/* UPDATE */
 window.modifierProjet = async function() {
-  await updateDoc(doc(db, "project", currentId), {
-    titre: titre.value,
-    liens: lien.value,
-    description: description.value
+  await updateDoc(doc(db,"project",currentId),{
+    titre:titre.value,
+    liens:lien.value,
+    description:description.value
   });
 
   loadProjects();
